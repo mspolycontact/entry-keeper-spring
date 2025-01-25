@@ -13,14 +13,6 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 interface FormData {
   operatorName: string;
@@ -32,6 +24,12 @@ interface FormData {
   workedHours: string;
   producedPieces: string;
   observations: string;
+}
+
+interface DeviceData {
+  id: string;
+  line: string;
+  target: number;
 }
 
 const operators = [
@@ -265,6 +263,13 @@ const operators = [
   "FLICHIS ALINA"
 ];
 
+const devices: DeviceData[] = [
+  { id: "D 154/0100/0180", line: "K12-rlc - Asamblare", target: 1900 },
+  { id: "I 161/0440/0020", line: "Ak-nc2 Asamblare", target: 4600 },
+  { id: "I 161/0440/0030", line: "Ak-nc2 Asamblare", target: 4600 },
+  { id: "B 967/1300/0425", line: "Ak-nc2 Asamblare", target: 1500 }
+];
+
 const DataEntryForm = () => {
   const { toast } = useToast();
   const { register, handleSubmit, reset, watch, setValue } = useForm<FormData>();
@@ -286,10 +291,17 @@ const DataEntryForm = () => {
   };
 
   const validateHours = async (hours: string, date: string, operatorName: string) => {
-    // In a real application, this would check against a database
-    // For now, we'll just validate that hours <= 8
     const hoursNum = parseFloat(hours);
     return hoursNum <= 8;
+  };
+
+  const handleDeviceChange = (deviceId: string) => {
+    const selectedDevice = devices.find(d => d.id === deviceId);
+    if (selectedDevice) {
+      setValue("device", deviceId);
+      setValue("line", selectedDevice.line);
+      setValue("target", selectedDevice.target.toString());
+    }
   };
 
   const onSubmit = async (data: FormData) => {
@@ -324,12 +336,10 @@ const DataEntryForm = () => {
     }
   };
 
-  // Watch form values for percentage calculation
   const target = watch("target");
   const hours = watch("workedHours");
   const pieces = watch("producedPieces");
 
-  // Update percentage when values change
   React.useEffect(() => {
     calculatePercentage(target, hours, pieces);
   }, [target, hours, pieces]);
@@ -389,26 +399,28 @@ const DataEntryForm = () => {
 
         <div className="space-y-2">
           <Label htmlFor="device">Dispozitiv</Label>
-          <Select onValueChange={(value) => setValue("device", value)}>
+          <Select onValueChange={handleDeviceChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select device" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="device1">Device 1</SelectItem>
-              <SelectItem value="device2">Device 2</SelectItem>
-              <SelectItem value="device3">Device 3</SelectItem>
+            <SelectContent className="max-h-[200px] overflow-y-auto">
+              {devices.map((device) => (
+                <SelectItem key={device.id} value={device.id}>
+                  {device.id}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="line">Linie</Label>
-          <Input {...register("line")} />
+          <Input {...register("line")} readOnly />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="target">Target</Label>
-          <Input {...register("target")} type="number" />
+          <Input {...register("target")} readOnly />
         </div>
 
         <div className="space-y-2">
