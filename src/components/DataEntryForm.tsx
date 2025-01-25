@@ -13,6 +13,14 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface FormData {
   operatorName: string;
@@ -259,23 +267,72 @@ const operators = [
 
 const DataEntryForm = () => {
   const { toast } = useToast();
-  const { register, handleSubmit, reset } = useForm<FormData>();
+  const { register, handleSubmit, reset, watch, setValue } = useForm<FormData>();
+  const [percentage, setPercentage] = useState<string>("0.00");
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
-    toast({
-      title: "Success",
-      description: "Data has been saved successfully",
-    });
+  const calculatePercentage = (target: string, hours: string, pieces: string) => {
+    if (!target || !hours || !pieces) return;
+    
+    const targetNum = parseFloat(target);
+    const hoursNum = parseFloat(hours);
+    const piecesNum = parseFloat(pieces);
+    
+    if (hoursNum === 0 || targetNum === 0) return;
+    
+    const expectedPieces = (targetNum / 8) * hoursNum;
+    const calculatedPercentage = (piecesNum / expectedPieces) * 100;
+    
+    setPercentage(calculatedPercentage.toFixed(2));
+  };
+
+  const validateHours = async (hours: string, date: string, operatorName: string) => {
+    // In a real application, this would check against a database
+    // For now, we'll just validate that hours <= 8
+    const hoursNum = parseFloat(hours);
+    return hoursNum <= 8;
+  };
+
+  const onSubmit = async (data: FormData) => {
+    const isHoursValid = await validateHours(data.workedHours, data.date, data.operatorName);
+    
+    if (!isHoursValid) {
+      toast({
+        title: "Error",
+        description: "Maximum 8 hours per day allowed",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (confirm("Do you want to transfer the data?")) {
+      console.log(data);
+      toast({
+        title: "Success",
+        description: "Data has been saved successfully",
+      });
+    }
   };
 
   const handleReset = () => {
-    reset();
-    toast({
-      title: "Form Reset",
-      description: "All fields have been cleared",
-    });
+    if (confirm("Do you want to reset the form?")) {
+      reset();
+      setPercentage("0.00");
+      toast({
+        title: "Form Reset",
+        description: "All fields have been cleared",
+      });
+    }
   };
+
+  // Watch form values for percentage calculation
+  const target = watch("target");
+  const hours = watch("workedHours");
+  const pieces = watch("producedPieces");
+
+  // Update percentage when values change
+  React.useEffect(() => {
+    calculatePercentage(target, hours, pieces);
+  }, [target, hours, pieces]);
 
   return (
     <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
@@ -286,7 +343,7 @@ const DataEntryForm = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="operatorName">Nume Operator</Label>
-          <Select>
+          <Select onValueChange={(value) => setValue("operatorName", value)}>
             <SelectTrigger>
               <SelectValue placeholder="Select operator" />
             </SelectTrigger>
@@ -314,7 +371,7 @@ const DataEntryForm = () => {
 
         <div className="space-y-2">
           <Label>Schimb</Label>
-          <RadioGroup defaultValue="A" className="flex space-x-4">
+          <RadioGroup defaultValue="A" className="flex space-x-4" onValueChange={(value) => setValue("shift", value as "A" | "B" | "C")}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="A" id="A" />
               <Label htmlFor="A">A</Label>
@@ -332,7 +389,7 @@ const DataEntryForm = () => {
 
         <div className="space-y-2">
           <Label htmlFor="device">Dispozitiv</Label>
-          <Select>
+          <Select onValueChange={(value) => setValue("device", value)}>
             <SelectTrigger>
               <SelectValue placeholder="Select device" />
             </SelectTrigger>
@@ -356,12 +413,17 @@ const DataEntryForm = () => {
 
         <div className="space-y-2">
           <Label htmlFor="workedHours">Ore lucrate</Label>
-          <Input {...register("workedHours")} type="number" />
+          <Input {...register("workedHours")} type="number" max="8" step="0.5" />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="producedPieces">Numar piese produse</Label>
           <Input {...register("producedPieces")} type="number" />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="percentage">Procent realizat</Label>
+          <Input value={`${percentage}%`} readOnly />
         </div>
 
         <div className="space-y-2">
