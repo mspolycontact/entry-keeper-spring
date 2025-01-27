@@ -428,6 +428,7 @@ const DataEntryForm = () => {
           ]);
 
         if (error) {
+          console.error('Supabase error:', error);
           throw error;
         }
 
