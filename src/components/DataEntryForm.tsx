@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 
 interface FormData {
   operatorName: string;
@@ -363,6 +364,7 @@ const DataEntryForm = () => {
   const { toast } = useToast();
   const { register, handleSubmit, reset, watch, setValue } = useForm<FormData>();
   const [percentage, setPercentage] = useState<string>("0.00");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const calculatePercentage = (target: string, hours: string, pieces: string) => {
     if (!target || !hours || !pieces) return;
@@ -394,23 +396,57 @@ const DataEntryForm = () => {
   };
 
   const onSubmit = async (data: FormData) => {
-    const isHoursValid = await validateHours(data.workedHours, data.date, data.operatorName);
-    
-    if (!isHoursValid) {
+    setIsSubmitting(true);
+    try {
+      const isHoursValid = await validateHours(data.workedHours, data.date, data.operatorName);
+      
+      if (!isHoursValid) {
+        toast({
+          title: "Error",
+          description: "Maximum 8 hours per day allowed",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (confirm("Do you want to transfer the data?")) {
+        const { error } = await supabase
+          .from('production_entries')
+          .insert([
+            {
+              operator_name: data.operatorName,
+              date: data.date,
+              shift: data.shift,
+              device: data.device,
+              line: data.line,
+              target: parseInt(data.target),
+              worked_hours: parseFloat(data.workedHours),
+              produced_pieces: parseInt(data.producedPieces),
+              observations: data.observations,
+              efficiency_percentage: parseFloat(percentage)
+            }
+          ]);
+
+        if (error) {
+          throw error;
+        }
+
+        toast({
+          title: "Success",
+          description: "Data has been saved successfully",
+        });
+        reset();
+        setPercentage("0.00");
+      }
+    } catch (error) {
+      console.error('Error saving data:', error);
       toast({
         title: "Error",
-        description: "Maximum 8 hours per day allowed",
+        description: "Failed to save data. Please try again.",
         variant: "destructive",
       });
-      return;
-    }
-
-    if (confirm("Do you want to transfer the data?")) {
-      console.log(data);
-      toast({
-        title: "Success",
-        description: "Data has been saved successfully",
-      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -531,15 +567,20 @@ const DataEntryForm = () => {
           <Label htmlFor="observations">Observatii</Label>
           <Input {...register("observations")} />
         </div>
-
+        
         <div className="flex justify-center space-x-4 pt-4">
-          <Button type="submit" className="bg-green-500 hover:bg-green-600">
-            Incarcare
+          <Button 
+            type="submit" 
+            className="bg-green-500 hover:bg-green-600"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Saving..." : "Incarcare"}
           </Button>
           <Button
             type="button"
             onClick={handleReset}
             variant="destructive"
+            disabled={isSubmitting}
           >
             Resetare
           </Button>
@@ -550,4 +591,3 @@ const DataEntryForm = () => {
 };
 
 export default DataEntryForm;
-
