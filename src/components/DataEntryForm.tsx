@@ -15,24 +15,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 
-interface FormData {
-  operatorName: string;
-  date: string;
-  shift: "A" | "B" | "C";
-  device: string;
-  line: string;
-  target: string;
-  workedHours: string;
-  producedPieces: string;
-  observations: string;
-}
-
-interface DeviceData {
-  id: string;
-  line: string;
-  target: number;
-}
-
 const operators = [
   "ACS DARIUS - GABRIEL",
   "ADAM DANA",
@@ -264,7 +246,7 @@ const operators = [
   "FLICHIS ALINA"
 ];
 
-const devices: DeviceData[] = [
+const devices = [
   { id: "D 154/0100/0180", line: "K12-rlc - Asamblare", target: 1900 },
   { id: "I 161/0440/0020", line: "Ak-nc2 Asamblare", target: 4600 },
   { id: "I 161/0440/0030", line: "Ak-nc2 Asamblare", target: 4600 },
@@ -360,6 +342,18 @@ const devices: DeviceData[] = [
   { id: "I 161/0440/0365", line: "Ak-nc2 Asamblare", target: 4400 },
 ];
 
+interface FormData {
+  operatorName: string;
+  date: string;
+  shift: "A" | "B" | "C";
+  device: string;
+  line: string;
+  target: string;
+  workedHours: string;
+  producedPieces: string;
+  observations: string;
+}
+
 const DataEntryForm = () => {
   const { toast } = useToast();
   const { register, handleSubmit, reset, watch, setValue } = useForm<FormData>();
@@ -381,11 +375,6 @@ const DataEntryForm = () => {
     setPercentage(calculatedPercentage.toFixed(2));
   };
 
-  const validateHours = async (hours: string, date: string, operatorName: string) => {
-    const hoursNum = parseFloat(hours);
-    return hoursNum <= 8;
-  };
-
   const handleDeviceChange = (deviceId: string) => {
     const selectedDevice = devices.find(d => d.id === deviceId);
     if (selectedDevice) {
@@ -398,9 +387,7 @@ const DataEntryForm = () => {
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
-      const isHoursValid = await validateHours(data.workedHours, data.date, data.operatorName);
-      
-      if (!isHoursValid) {
+      if (parseFloat(data.workedHours) > 8) {
         toast({
           title: "Error",
           description: "Maximum 8 hours per day allowed",
@@ -427,10 +414,7 @@ const DataEntryForm = () => {
             }
           ]);
 
-        if (error) {
-          console.error('Supabase error:', error);
-          throw error;
-        }
+        if (error) throw error;
 
         toast({
           title: "Success",
@@ -471,9 +455,9 @@ const DataEntryForm = () => {
   }, [target, hours, pieces]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="bg-white shadow-lg rounded-lg border border-gray-200">
-        <div className="bg-blue-600 px-6 py-4 rounded-t-lg">
+    <div className="max-w-4xl mx-auto">
+      <div className="bg-white shadow-md rounded-lg border border-gray-200">
+        <div className="bg-blue-600 p-6 rounded-t-lg">
           <h1 className="text-2xl font-bold text-white text-center">
             Eficienta Productie
           </h1>
@@ -481,14 +465,12 @@ const DataEntryForm = () => {
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="operatorName" className="text-gray-700 font-medium">
-              Nume Operator
-            </Label>
+            <Label htmlFor="operatorName">Nume Operator</Label>
             <Select onValueChange={(value) => setValue("operatorName", value)}>
-              <SelectTrigger className="w-full bg-white border-gray-300">
+              <SelectTrigger>
                 <SelectValue placeholder="Select operator" />
               </SelectTrigger>
-              <SelectContent className="max-h-[200px] overflow-y-auto">
+              <SelectContent>
                 {operators.map((operator) => (
                   <SelectItem key={operator} value={operator}>
                     {operator}
@@ -499,21 +481,19 @@ const DataEntryForm = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="date" className="text-gray-700 font-medium">
-              Data
-            </Label>
+            <Label htmlFor="date">Data</Label>
             <div className="relative">
               <Input
                 type="date"
                 {...register("date")}
-                className="pl-10 w-full bg-white border-gray-300"
+                className="pl-10"
               />
               <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-gray-500" />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label className="text-gray-700 font-medium">Schimb</Label>
+            <Label>Schimb</Label>
             <RadioGroup
               defaultValue="A"
               className="flex space-x-4"
@@ -521,34 +501,26 @@ const DataEntryForm = () => {
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="A" id="A" />
-                <Label htmlFor="A" className="text-gray-700">
-                  A
-                </Label>
+                <Label htmlFor="A">A</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="B" id="B" />
-                <Label htmlFor="B" className="text-gray-700">
-                  B
-                </Label>
+                <Label htmlFor="B">B</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="C" id="C" />
-                <Label htmlFor="C" className="text-gray-700">
-                  C
-                </Label>
+                <Label htmlFor="C">C</Label>
               </div>
             </RadioGroup>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="device" className="text-gray-700 font-medium">
-              Dispozitiv
-            </Label>
+            <Label htmlFor="device">Dispozitiv</Label>
             <Select onValueChange={handleDeviceChange}>
-              <SelectTrigger className="w-full bg-white border-gray-300">
+              <SelectTrigger>
                 <SelectValue placeholder="Select device" />
               </SelectTrigger>
-              <SelectContent className="max-h-[200px] overflow-y-auto">
+              <SelectContent>
                 {devices.map((device) => (
                   <SelectItem key={device.id} value={device.id}>
                     {device.id}
@@ -559,76 +531,61 @@ const DataEntryForm = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="line" className="text-gray-700 font-medium">
-              Linie
-            </Label>
+            <Label htmlFor="line">Linie</Label>
             <Input
               {...register("line")}
               readOnly
-              className="w-full bg-gray-50 border-gray-300"
+              className="bg-gray-50"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="target" className="text-gray-700 font-medium">
-              Target
-            </Label>
+            <Label htmlFor="target">Target</Label>
             <Input
               {...register("target")}
               readOnly
-              className="w-full bg-gray-50 border-gray-300"
+              className="bg-gray-50"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="workedHours" className="text-gray-700 font-medium">
-              Ore lucrate
-            </Label>
+            <Label htmlFor="workedHours">Ore lucrate</Label>
             <Input
               {...register("workedHours")}
               type="number"
               max="8"
               step="0.5"
-              className="w-full bg-white border-gray-300"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="producedPieces" className="text-gray-700 font-medium">
-              Numar piese produse
-            </Label>
+            <Label htmlFor="producedPieces">Numar piese produse</Label>
             <Input
               {...register("producedPieces")}
               type="number"
-              className="w-full bg-white border-gray-300"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="percentage" className="text-gray-700 font-medium">
-              Procent realizat
-            </Label>
+            <Label htmlFor="percentage">Procent realizat</Label>
             <Input
               value={`${percentage}%`}
               readOnly
-              className="w-full bg-gray-50 border-gray-300"
+              className="bg-gray-50"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="observations" className="text-gray-700 font-medium">
-              Observatii
-            </Label>
+            <Label htmlFor="observations">Observatii</Label>
             <Input
               {...register("observations")}
-              className="w-full bg-white border-gray-300"
             />
           </div>
 
           <div className="flex justify-center space-x-4 pt-4">
             <Button
               type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white px-6"
+              className="bg-green-600 hover:bg-green-700"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Saving..." : "Incarcare"}
@@ -637,7 +594,6 @@ const DataEntryForm = () => {
               type="button"
               onClick={handleReset}
               variant="destructive"
-              className="px-6"
               disabled={isSubmitting}
             >
               Resetare
