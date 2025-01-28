@@ -471,16 +471,16 @@ const DataEntryForm = () => {
   }, [target, hours, pieces]);
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg border border-gray-200">
-      <h1 className="text-2xl font-bold text-center bg-blue-600 text-white py-3 mb-6 rounded-t-lg -mt-6 -mx-6">
+    <div className="w-full max-w-4xl mx-auto bg-white rounded-lg shadow-lg border border-gray-200">
+      <h1 className="text-2xl font-bold text-center bg-blue-600 text-white py-3 rounded-t-lg">
         Eficienta Productie
       </h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="operatorName" className="text-gray-700">Nume Operator</Label>
+          <Label htmlFor="operatorName" className="text-gray-700 font-medium">Nume Operator</Label>
           <Select onValueChange={(value) => setValue("operatorName", value)}>
-            <SelectTrigger className="bg-white border-gray-300">
+            <SelectTrigger className="w-full bg-white border-gray-300">
               <SelectValue placeholder="Select operator" />
             </SelectTrigger>
             <SelectContent className="max-h-[200px] overflow-y-auto">
@@ -494,19 +494,19 @@ const DataEntryForm = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="date" className="text-gray-700">Data</Label>
+          <Label htmlFor="date" className="text-gray-700 font-medium">Data</Label>
           <div className="relative">
             <Input
               type="date"
               {...register("date")}
-              className="pl-10 bg-white border-gray-300"
+              className="pl-10 w-full bg-white border-gray-300"
             />
             <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-gray-500" />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label className="text-gray-700">Schimb</Label>
+          <Label className="text-gray-700 font-medium">Schimb</Label>
           <RadioGroup defaultValue="A" className="flex space-x-4" onValueChange={(value) => setValue("shift", value as "A" | "B" | "C")}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="A" id="A" />
@@ -524,9 +524,9 @@ const DataEntryForm = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="device" className="text-gray-700">Dispozitiv</Label>
+          <Label htmlFor="device" className="text-gray-700 font-medium">Dispozitiv</Label>
           <Select onValueChange={handleDeviceChange}>
-            <SelectTrigger className="bg-white border-gray-300">
+            <SelectTrigger className="w-full bg-white border-gray-300">
               <SelectValue placeholder="Select device" />
             </SelectTrigger>
             <SelectContent className="max-h-[200px] overflow-y-auto">
@@ -540,33 +540,33 @@ const DataEntryForm = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="line" className="text-gray-700">Linie</Label>
-          <Input {...register("line")} readOnly className="bg-gray-50 border-gray-300" />
+          <Label htmlFor="line" className="text-gray-700 font-medium">Linie</Label>
+          <Input {...register("line")} readOnly className="w-full bg-gray-50 border-gray-300" />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="target" className="text-gray-700">Target</Label>
-          <Input {...register("target")} readOnly className="bg-gray-50 border-gray-300" />
+          <Label htmlFor="target" className="text-gray-700 font-medium">Target</Label>
+          <Input {...register("target")} readOnly className="w-full bg-gray-50 border-gray-300" />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="workedHours" className="text-gray-700">Ore lucrate</Label>
-          <Input {...register("workedHours")} type="number" max="8" step="0.5" className="bg-white border-gray-300" />
+          <Label htmlFor="workedHours" className="text-gray-700 font-medium">Ore lucrate</Label>
+          <Input {...register("workedHours")} type="number" max="8" step="0.5" className="w-full bg-white border-gray-300" />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="producedPieces" className="text-gray-700">Numar piese produse</Label>
-          <Input {...register("producedPieces")} type="number" className="bg-white border-gray-300" />
+          <Label htmlFor="producedPieces" className="text-gray-700 font-medium">Numar piese produse</Label>
+          <Input {...register("producedPieces")} type="number" className="w-full bg-white border-gray-300" />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="percentage" className="text-gray-700">Procent realizat</Label>
-          <Input value={`${percentage}%`} readOnly className="bg-gray-50 border-gray-300" />
+          <Label htmlFor="percentage" className="text-gray-700 font-medium">Procent realizat</Label>
+          <Input value={`${percentage}%`} readOnly className="w-full bg-gray-50 border-gray-300" />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="observations" className="text-gray-700">Observatii</Label>
-          <Input {...register("observations")} className="bg-white border-gray-300" />
+          <Label htmlFor="observations" className="text-gray-700 font-medium">Observatii</Label>
+          <Input {...register("observations")} className="w-full bg-white border-gray-300" />
         </div>
         
         <div className="flex justify-center space-x-4 pt-4">
