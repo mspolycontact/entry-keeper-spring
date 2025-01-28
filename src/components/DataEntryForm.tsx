@@ -471,16 +471,16 @@ const DataEntryForm = () => {
   }, [target, hours, pieces]);
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg border border-gray-200">
       <h1 className="text-2xl font-bold text-center bg-blue-600 text-white py-3 mb-6 rounded-t-lg -mt-6 -mx-6">
         Eficienta Productie
       </h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="operatorName">Nume Operator</Label>
+          <Label htmlFor="operatorName" className="text-gray-700">Nume Operator</Label>
           <Select onValueChange={(value) => setValue("operatorName", value)}>
-            <SelectTrigger>
+            <SelectTrigger className="bg-white border-gray-300">
               <SelectValue placeholder="Select operator" />
             </SelectTrigger>
             <SelectContent className="max-h-[200px] overflow-y-auto">
@@ -494,39 +494,39 @@ const DataEntryForm = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="date">Data</Label>
+          <Label htmlFor="date" className="text-gray-700">Data</Label>
           <div className="relative">
             <Input
               type="date"
               {...register("date")}
-              className="pl-10"
+              className="pl-10 bg-white border-gray-300"
             />
             <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-gray-500" />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label>Schimb</Label>
+          <Label className="text-gray-700">Schimb</Label>
           <RadioGroup defaultValue="A" className="flex space-x-4" onValueChange={(value) => setValue("shift", value as "A" | "B" | "C")}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="A" id="A" />
-              <Label htmlFor="A">A</Label>
+              <Label htmlFor="A" className="text-gray-700">A</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="B" id="B" />
-              <Label htmlFor="B">B</Label>
+              <Label htmlFor="B" className="text-gray-700">B</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="C" id="C" />
-              <Label htmlFor="C">C</Label>
+              <Label htmlFor="C" className="text-gray-700">C</Label>
             </div>
           </RadioGroup>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="device">Dispozitiv</Label>
+          <Label htmlFor="device" className="text-gray-700">Dispozitiv</Label>
           <Select onValueChange={handleDeviceChange}>
-            <SelectTrigger>
+            <SelectTrigger className="bg-white border-gray-300">
               <SelectValue placeholder="Select device" />
             </SelectTrigger>
             <SelectContent className="max-h-[200px] overflow-y-auto">
@@ -540,39 +540,39 @@ const DataEntryForm = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="line">Linie</Label>
-          <Input {...register("line")} readOnly />
+          <Label htmlFor="line" className="text-gray-700">Linie</Label>
+          <Input {...register("line")} readOnly className="bg-gray-50 border-gray-300" />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="target">Target</Label>
-          <Input {...register("target")} readOnly />
+          <Label htmlFor="target" className="text-gray-700">Target</Label>
+          <Input {...register("target")} readOnly className="bg-gray-50 border-gray-300" />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="workedHours">Ore lucrate</Label>
-          <Input {...register("workedHours")} type="number" max="8" step="0.5" />
+          <Label htmlFor="workedHours" className="text-gray-700">Ore lucrate</Label>
+          <Input {...register("workedHours")} type="number" max="8" step="0.5" className="bg-white border-gray-300" />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="producedPieces">Numar piese produse</Label>
-          <Input {...register("producedPieces")} type="number" />
+          <Label htmlFor="producedPieces" className="text-gray-700">Numar piese produse</Label>
+          <Input {...register("producedPieces")} type="number" className="bg-white border-gray-300" />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="percentage">Procent realizat</Label>
-          <Input value={`${percentage}%`} readOnly />
+          <Label htmlFor="percentage" className="text-gray-700">Procent realizat</Label>
+          <Input value={`${percentage}%`} readOnly className="bg-gray-50 border-gray-300" />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="observations">Observatii</Label>
-          <Input {...register("observations")} />
+          <Label htmlFor="observations" className="text-gray-700">Observatii</Label>
+          <Input {...register("observations")} className="bg-white border-gray-300" />
         </div>
         
         <div className="flex justify-center space-x-4 pt-4">
           <Button 
             type="submit" 
-            className="bg-green-500 hover:bg-green-600"
+            className="bg-green-600 hover:bg-green-700 text-white px-6"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Saving..." : "Incarcare"}
@@ -581,6 +581,7 @@ const DataEntryForm = () => {
             type="button"
             onClick={handleReset}
             variant="destructive"
+            className="px-6"
             disabled={isSubmitting}
           >
             Resetare
